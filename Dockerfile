@@ -1,2 +1,2 @@
-FROM k8s.gcr.io/echoserver:1.4
+FROM gcr.io/google-samples/kubernetes-bootcamp:v1
 MAINTAINER faxianzhao <faxianzhao@gmail.com>
