@@ -1,2 +1,2 @@
-FROM k8s.gcr.io/pause-amd64:3.0
+FROM gcr.io/echoserver:1.4
 MAINTAINER faxianzhao <faxianzhao@gmail.com>
