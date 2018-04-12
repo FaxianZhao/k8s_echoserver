@@ -1,3 +1,4 @@
+## https://github.com/kow3ns/kubernetes-zookeeper
 FROM ubuntu:16.04 
 ENV ZK_USER=zookeeper \
 ZK_DATA_DIR=/var/lib/zookeeper/data \
