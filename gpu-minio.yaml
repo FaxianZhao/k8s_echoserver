@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: f-algo-quotes-block-gpu
+  namespace: f-algo-quotes-block-gpu
+spec:
+  replicas: 1
+  selector: 
+    app: f-algo-quotes-block-gpu
+  template:
+    metadata:
+      labels: 
+        app: f-algo-quotes-block-gpu
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        node-type: gpu
+      volumes:
+      - name: nvidia-driver
+        hostPath:
+          path: /usr/local/var/lib/nvidia-docker/volumes/nvidia_driver/current
+      - name: f-algo-quotes-block-gpu-data
+        rbd:
+          monitors:
+          - l-cephmon1.ops.cn2:6789
+          - l-cephmon2.ops.cn2:6789
+          - l-cephmon3.ops.cn2:6789
+          pool: appcode
+          image: f_algo_quotes_block_gpu
+          fsType: ext4 
+          readOnly: false
+      containers:
+      - name: f-algo-quotes-block-gpu
+        imagePullPolicy: IfNotPresent
+        image: registry.corp.qunar.com/opsdev/tensorflow:anaconda-5.1
+        terminationMessagePolicy: File
+        env:
+          - name: PORT
+            value: "30025"
+          - name: PASSWORD 
+            value: sPYT7YPHNm#WBx
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64
+        resources:
+          limits:
+            alpha.kubernetes.io/nvidia-gpu: "1"
+        volumeMounts:
+        - name: nvidia-driver
+          mountPath: /usr/local/nvidia/
+          readOnly: true
+        - name: f-algo-quotes-block-gpu-data
+          mountPath: "/notebooks"
+      - name: minio
+        image: registry.corp.qunar.com/opsdev/minio:0.1
+        volumeMounts:
+        - mountPath: "/export"
+          name: f-algo-quotes-block-gpu-data
+        env:
+        - name: MINIO_ACCESS_KEY 
+          value: s8n$Al7xIZ#lbp
+        - name: MINIO_SECRET_KEY
+          value: sKX9^YVfS5A2v7
+        - name: STORAGE
+          value: "20"
+        command:
+        - minio
+        args:
+        - server
+        - "/export"
+        - --address
+        - "0.0.0.0:32188"
